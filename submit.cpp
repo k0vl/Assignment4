@@ -1,5 +1,5 @@
 #include "innerproduct.h"
-//#include <sstream>
+#include <cilk/reducer_opadd.h>
 
 const static int COARSENESS = 2;
 
@@ -16,9 +16,6 @@ double rec_cilkified(double *a, double *b, int n)
 		double a_sum = cilk_spawn rec_cilkified(a, b, pivot);
 		double b_sum = rec_cilkified(a + pivot, b + pivot, n - pivot);
 		cilk_sync;
-		// std::ostringstream s;
-		// s << n << ": " << (a_sum + b_sum) << std::endl;
-		// std::cout << s.str();
 		return a_sum + b_sum;
 	}
 }
@@ -42,6 +39,12 @@ double loop_cilkified(double *a, double *b, int n)
 
 double hyperobject_cilkified(double *a, double *b, int n)
 {
-	return 1;
+	cilk::reducer< cilk::op_add<double> > result; 
+	cilk_for(int i = 0; i < n/COARSENESS; i++){
+		for(int j = 0; j < COARSENESS; j++){
+			*result += a[i*COARSENESS + j] * b[i*COARSENESS + j];
+		}
+	}
+	return result.get_value();
 }
 

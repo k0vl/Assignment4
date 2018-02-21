@@ -25,7 +25,19 @@ double rec_cilkified(double *a, double *b, int n)
 
 double loop_cilkified(double *a, double *b, int n)
 {
-	return 360;
+	double inner_sums[n/COARSENESS];
+	cilk_for(int i = 0; i < n/COARSENESS; i++){
+		inner_sums[i] = 0.0;
+		for(int j = 0; j < COARSENESS; j++){
+			inner_sums[i] += a[i*COARSENESS + j] * b[i*COARSENESS + j];
+		}
+	}
+
+	double outer_sum = 0.0;
+	for(int i = 0; i < n/COARSENESS; i++){
+		outer_sum += inner_sums[i];
+	}
+	return outer_sum;
 }
 
 double hyperobject_cilkified(double *a, double *b, int n)

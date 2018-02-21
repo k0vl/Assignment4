@@ -1,4 +1,5 @@
 #include "innerproduct.h"
+<<<<<<< HEAD
 //#include <sstream>
 
 const static int COARSENESS = 2;
